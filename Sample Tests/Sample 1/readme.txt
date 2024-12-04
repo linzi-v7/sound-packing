@@ -1,0 +1,2 @@
+- # of audios = 5 audios
+- Desired duration of each folder = 100 secs
