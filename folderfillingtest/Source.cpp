@@ -37,9 +37,9 @@ string secondsToTime(int totalSeconds)
 //this function will not work properly with processing files one by one each call.
 //folderName represents the algorithm you are working on. 
 //e.g: [3] FirstFit Decreasing. CHECK SAMPLE TESTS
-void processFiles(vector<pair<string, int>>& files, int folderCount, vector<int>& chosenFilesIndexes, string folderName) {
+void processFiles(vector<pair<string, int>>& files, int folderCount, vector<int>& chosenFilesIndexes, string folderName, string testNo, bool removeFiles) {
     
-    string directory = "./OUTPUT/" + folderName + "/F" + to_string(folderCount);
+    string directory = "../Sample Tests/Sample " + testNo + "/OUTPUT/" + folderName + "/F" + to_string(folderCount);
 
     if (!fs::exists(directory))
     {
@@ -57,7 +57,7 @@ void processFiles(vector<pair<string, int>>& files, int folderCount, vector<int>
         string fileName = files[fileIndex].first;
         int fileDuration = files[fileIndex].second;
 
-        string sourcePath = "./INPUT/Audios/" + fileName;
+        string sourcePath = "../Sample Tests/Sample " + testNo + "/INPUT/Audios/" + fileName;
         string destinationPath = directory + "/" + fileName;
 
         fs::copy(sourcePath, destinationPath, fs::copy_options::overwrite_existing);
@@ -68,9 +68,10 @@ void processFiles(vector<pair<string, int>>& files, int folderCount, vector<int>
 
           
           currentFolderDuration += fileDuration;
-
-          files.erase(files.begin() + fileIndex); // Remove file from the list
-        
+          // Remove file from the list if removeFiles is true
+          if (removeFiles) {
+              files.erase(files.begin() + fileIndex);
+          }
     }
 
     cout << secondsToTime(currentFolderDuration) << "\n\n";
@@ -112,10 +113,10 @@ int folderFillingAlgorithm(int capacity, int numOfFiles, vector<pair<string, int
 
 
 // Folder filling caller
-void folderFilling(int folderCapacity, vector<pair<string, int>> files) 
+void folderFilling(int folderCapacity, vector<pair<string, int>> files, string testNo) 
 {
     string folderName = "[4] FolderFilling";
-    filesystem::create_directory("./OUTPUT/" + folderName);
+    filesystem::create_directory("../Sample Tests/Sample " + testNo + "/OUTPUT/" + folderName);
 
     int folderCount = 1;
 
@@ -145,15 +146,69 @@ void folderFilling(int folderCapacity, vector<pair<string, int>> files)
 
 
         //copy chosen files to the current folder and remove them to continue filling other folders
-        processFiles(files, folderCount, chosenFilesIndexes, folderName);
+        processFiles(files, folderCount, chosenFilesIndexes, folderName, testNo, true);
         folderCount++;
     }
 }
 
+
+// Sort files in descending order
+bool compareFiles(const std::pair<std::string, int>& a, const std::pair<std::string, int>& b) {
+    return a.second > b.second;
+}
+void sortFiles(std::vector<std::pair<std::string, int>>& files) {
+    std::sort(files.begin(), files.end(), compareFiles);
+}
+
+//Folder filling using First-Fit Decreasing (FFD) algorithm
+void folderFillingFFD(int folderCapacity, std::vector<pair<string, int>>& files, std::string testNo) {
+    std::string folderName = "[3] FirstFit Decreasing";
+    filesystem::create_directory("../Sample Tests/Sample " + testNo + "/OUTPUT/" + folderName);
+    int folderCount = 1;
+    int remainingCapacity = folderCapacity;
+
+    while (!files.empty()) {
+        std::vector<int> chosenFilesIndexes;
+
+        for (size_t i = 0; i < files.size(); ++i) {
+            if (files[i].second <= remainingCapacity) {
+                chosenFilesIndexes.push_back(i);
+                remainingCapacity -= files[i].second;
+            }
+        }
+
+        // Process chosen files
+        processFiles(files, folderCount, chosenFilesIndexes, folderName, testNo, false);
+
+        // Remove processed files
+        std::vector<pair<string, int>> updatedFiles;
+        for (size_t i = 0; i < files.size(); ++i) {
+            if (std::find(chosenFilesIndexes.begin(), chosenFilesIndexes.end(), i) == chosenFilesIndexes.end()) {
+                updatedFiles.push_back(files[i]);
+            }
+        }
+        files = updatedFiles;
+
+        folderCount++;
+        remainingCapacity = folderCapacity;
+    }
+}
+
+
+
 int main() 
 {
+    int x = 0;
+    while (x != 1 && x != 2 && x != 3) 
+    {
+        cout << "enter sample number (1,2,3): ";
+        cin >> x;
+    }
+
+    string testNo = to_string(x);
+    
     //open and read metadata 
-    ifstream inputFile("./INPUT/AudiosInfo.txt");
+    ifstream inputFile("../Sample Tests/Sample " + testNo + "/INPUT/AudiosInfo.txt");
     if (!inputFile.is_open()) 
     {
         cerr << "Error: Could not open AudiosInfo.txt file." << endl;
@@ -161,9 +216,9 @@ int main()
     }
 
     //if output file already exist, remove it to start on a fresh page
-    if (fs::exists("./OUTPUT"))
+    if (fs::exists("../Sample Tests/Sample " + testNo + "/OUTPUT"))
     {
-        fs::remove_all("./OUTPUT");
+        fs::remove_all("../Sample Tests/sample " + testNo + "/OUTPUT");
     }
 
     int numberOfFiles;
@@ -178,7 +233,7 @@ int main()
         files[i] = { name, timeToSeconds(duration) };
     }
 
-    
+
     inputFile.close();
 
     cout << "FOLDER CAPACITY CANT BE LESS THAN THE MAXIMUM AUDIO CAPACITY TO AVOID INFINITE LOOP\n";
@@ -186,12 +241,15 @@ int main()
     int folderCapacity; 
     cin >> folderCapacity;
 
-    filesystem::create_directory("./OUTPUT");
+    filesystem::create_directory("../Sample Tests/Sample " + testNo + "/OUTPUT");
 
 
     cout << "Folder Filling Algorithm:\n";
-    folderFilling(folderCapacity, files);
+    folderFilling(folderCapacity, files, testNo);
 
+    cout << "first fit descending: \n";
+    sortFiles(files);
+    folderFillingFFD(folderCapacity, files, testNo);
 
     //rest of algorithms should be called here
     return 0;
