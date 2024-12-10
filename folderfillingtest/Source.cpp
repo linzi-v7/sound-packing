@@ -168,50 +168,63 @@ void folderFilling(int folderCapacity, vector<pair<string, int>> files, string t
 }
 
 
+
 // Sort files in descending order
-bool compareFiles(const pair<string, int>& a, const pair<string, int>& b) 
-{
+bool compareFiles(const std::pair<std::string, int>& a, const std::pair<std::string, int>& b) {
     return a.second > b.second;
 }
-void sortFiles(vector<pair<string, int>>& files) 
-{
-    sort(files.begin(), files.end(), compareFiles);
+void sortFiles(std::vector<std::pair<std::string, int>>& files) {
+    std::sort(files.begin(), files.end(), compareFiles);
 }
 
 //Folder filling using First-Fit Decreasing (FFD) algorithm
-void firstFitDecreasing(int folderCapacity, std::vector<pair<string, int>>& files, std::string testNo) {
-    sortFiles(files);
-    std::string folderName = "[3] FirstFit Decreasing";
-    filesystem::create_directory("../Sample Tests/Sample " + testNo + "/OUTPUT/" + folderName);
-    int folderCount = 1;
-    int remainingCapacity = folderCapacity;
+void folderFillingFFD(int folderCapacity, const vector<pair<string, int>>& files, vector<vector<int>>& folderFileIndexes) {
 
-    while (!files.empty()) {
-        vector<int> chosenFilesIndexes;
+    // Vector to store remaining capacity of each folder
+    vector<int> folderCapacities;
 
-        for (size_t i = 0; i < files.size(); ++i) {
-            if (files[i].second <= remainingCapacity) {
-                chosenFilesIndexes.push_back(i);
-                remainingCapacity -= files[i].second;
+    // Iterate over each file
+    for (int fileIndex = 0; fileIndex < files.size(); ++fileIndex) {
+        const auto& file = files[fileIndex];
+        bool placed = false;
+
+        // Try to place the file in the first folder with enough capacity
+        for (int folderIndex = 0; folderIndex < folderCapacities.size(); ++folderIndex) {
+            if (file.second <= folderCapacities[folderIndex]) {
+                folderCapacities[folderIndex] -= file.second; // Update folder's remaining capacity
+                folderFileIndexes[folderIndex].push_back(fileIndex); // Track file placement
+                placed = true;
+                break;
             }
         }
 
-        // Process chosen files
-        processFiles(files, folderCount, chosenFilesIndexes, folderName, testNo, false);
-
-        // Remove processed files
-        std::vector<pair<string, int>> updatedFiles;
-        for (size_t i = 0; i < files.size(); ++i) {
-            if (find(chosenFilesIndexes.begin(), chosenFilesIndexes.end(), i) == chosenFilesIndexes.end()) {
-                updatedFiles.push_back(files[i]);
-            }
+        // If the file couldn't be placed, create a new folder
+        if (!placed) {
+            folderCapacities.push_back(folderCapacity - file.second); // Add a new folder with updated capacity
+            folderFileIndexes.emplace_back(vector<int>{fileIndex}); // Add file to new folder
         }
-        files = updatedFiles;
-
-        folderCount++;
-        remainingCapacity = folderCapacity;
     }
 }
+
+
+void FirstFitDecreasing(int folderCapacity, vector<pair<string, int>>& files, string testNo) {
+    string folderName = "[3] FirstFit Decreasing";
+    filesystem::create_directory("../Sample Tests/Sample " + testNo + "/OUTPUT/" + folderName);
+    //Sort files in descending order
+    sortFiles(files);
+
+    //Assign files to folders using FFD algorithm
+    vector<vector<int>> folderFileIndexes; // Holds file indices for each folder
+    folderFillingFFD(folderCapacity, files, folderFileIndexes);
+
+    //Process each folder
+    for (size_t folderIndex = 0; folderIndex < folderFileIndexes.size(); ++folderIndex) {
+        const auto& fileIndexes = folderFileIndexes[folderIndex];
+        processFiles(files, folderIndex + 1, const_cast<vector<int>&>(fileIndexes), folderName, testNo, false);
+    }
+}
+
+
 
 
 //########################### WORST FIT DECREASING ALGORITHM ###################################
@@ -340,8 +353,8 @@ int main()
     cout << "Folder Filling Algorithm:\n";
     folderFilling(folderCapacity, files, testNo);
 
-    //cout << "first fit descending: \n";
-    //firstFitDecreasing(folderCapacity, files, testNo);
+    cout << "First-Fit Decreasing: \n";
+    FirstFitDecreasing(folderCapacity, files, testNo);
 
     cout << "Worst-Fit Decreasing:\n";
     worstFitDecreasingCaller(folderCapacity, files, testNo);
