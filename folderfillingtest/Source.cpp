@@ -11,6 +11,8 @@ using namespace std;
 namespace fs = filesystem;
 
 
+//########################### HELPER FUNCTIONS ###################################
+
 // Folder structure to represent each folder
 struct Folder {
     vector<pair<string, int>> files;        // Files in this folder
@@ -96,6 +98,8 @@ void processFiles(vector<pair<string, int>>& files, int folderCount, vector<int>
 }
 
 
+//########################### FOLDER FILLING DP ALGORITHM ###################################
+
 // folder filling algorithm using dynamic programming bottom up approach
 int folderFillingAlgorithm(int capacity, int numOfFiles, vector<pair<string, int>>& files, vector<vector<int>>& dpMemory) 
 {
@@ -169,6 +173,9 @@ void folderFilling(int folderCapacity, vector<pair<string, int>> files, string t
 
 
 
+//########################### FIRST FIT DECREASING ALGORITHM ###################################
+
+
 // Sort files in descending order
 bool compareFiles(const std::pair<std::string, int>& a, const std::pair<std::string, int>& b) {
     return a.second > b.second;
@@ -176,6 +183,7 @@ bool compareFiles(const std::pair<std::string, int>& a, const std::pair<std::str
 void sortFiles(std::vector<std::pair<std::string, int>>& files) {
     std::sort(files.begin(), files.end(), compareFiles);
 }
+
 
 //Folder filling using First-Fit Decreasing (FFD) algorithm
 void folderFillingFFD(int folderCapacity, const vector<pair<string, int>>& files, vector<vector<int>>& folderFileIndexes) {
@@ -226,10 +234,9 @@ void FirstFitDecreasing(int folderCapacity, vector<pair<string, int>> files, str
 
 
 
+//########################### WORST FIT (DECREASING) PQ ALGORITHM ###################################
 
-//########################### WORST FIT DECREASING ALGORITHM ###################################
-
-// Worst-Fit  Algorithm using PRIORITY QUEUE
+// Worst-Fit  Algorithm using PRIORITY QUEUE, main logic is here.
 vector<Folder> worstFitPQ(vector<pair<string, int>> files, int capacity)
 {
 
@@ -241,15 +248,15 @@ vector<Folder> worstFitPQ(vector<pair<string, int>> files, int capacity)
 
         if (!folderPriorityQueue.empty() && folderPriorityQueue.top().remainingCapacity >= duration) 
         {
-            Folder topFolder = folderPriorityQueue.top();
+            Folder topFolder = folderPriorityQueue.top(); //get the top folder to add current file
             folderPriorityQueue.pop();
 
             topFolder.files.push_back(file);
             topFolder.remainingCapacity -= duration;
 
-            folderPriorityQueue.push(topFolder);
+            folderPriorityQueue.push(topFolder); //re-add in PQ after adjusting remaining capacity
         }
-        else 
+        else //create new folder if current file doesnt fit
         {
             Folder newFolder;
             newFolder.files.push_back(file);
@@ -269,7 +276,7 @@ vector<Folder> worstFitPQ(vector<pair<string, int>> files, int capacity)
     return result;
 }
 
-// Folder filling using Worst-Fit Decreasing (WFD) algorithm
+// Worst-Fit Decreasing (WFD) w/PQ caller
 void worstFitDecreasingPQCaller(int folderCapacity, vector<pair<string, int>> files, string testNo) 
 {
 
@@ -303,7 +310,7 @@ void worstFitDecreasingPQCaller(int folderCapacity, vector<pair<string, int>> fi
     }
 }
 
-// Folder filling using Worst-Fit Decreasing (WFD) algorithm
+// Worst-Fit (WF) w/PQ caller
 void worstFitPQCaller(int folderCapacity, vector<pair<string, int>> files, string testNo)
 {
 
@@ -336,6 +343,8 @@ void worstFitPQCaller(int folderCapacity, vector<pair<string, int>> files, strin
     }
 }
 
+
+//########################### MAIN ###################################
 
 int main() 
 {
