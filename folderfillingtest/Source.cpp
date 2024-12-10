@@ -5,9 +5,25 @@
 #include <algorithm>
 #include <fstream>
 #include <filesystem>
+#include<queue>
 
 using namespace std;
 namespace fs = filesystem;
+
+
+// Folder structure to represent each folder
+struct Folder {
+    vector<pair<string, int>> files;        // Files in this folder
+    int remainingCapacity;                  // Remaining capacity of the folder
+};
+
+// Comparator for priority queue (max-heap)
+// Ensures the folder with the most remaining capacity is at the top
+struct Compare {
+    bool operator()(const Folder& f1, const Folder& f2) {
+        return f1.remainingCapacity < f2.remainingCapacity; // Max-heap
+    }
+};
 
 // convert HH:MM:SS to seconds
 int timeToSeconds(const string& time) 
@@ -153,15 +169,17 @@ void folderFilling(int folderCapacity, vector<pair<string, int>> files, string t
 
 
 // Sort files in descending order
-bool compareFiles(const std::pair<std::string, int>& a, const std::pair<std::string, int>& b) {
+bool compareFiles(const pair<string, int>& a, const pair<string, int>& b) 
+{
     return a.second > b.second;
 }
-void sortFiles(std::vector<std::pair<std::string, int>>& files) {
-    std::sort(files.begin(), files.end(), compareFiles);
+void sortFiles(vector<pair<string, int>>& files) 
+{
+    sort(files.begin(), files.end(), compareFiles);
 }
 
 //Folder filling using First-Fit Decreasing (FFD) algorithm
-void folderFillingFFD(int folderCapacity, std::vector<pair<string, int>>& files, std::string testNo) {
+void firstFitDecreasing(int folderCapacity, std::vector<pair<string, int>>& files, std::string testNo) {
     sortFiles(files);
     std::string folderName = "[3] FirstFit Decreasing";
     filesystem::create_directory("../Sample Tests/Sample " + testNo + "/OUTPUT/" + folderName);
@@ -169,7 +187,7 @@ void folderFillingFFD(int folderCapacity, std::vector<pair<string, int>>& files,
     int remainingCapacity = folderCapacity;
 
     while (!files.empty()) {
-        std::vector<int> chosenFilesIndexes;
+        vector<int> chosenFilesIndexes;
 
         for (size_t i = 0; i < files.size(); ++i) {
             if (files[i].second <= remainingCapacity) {
@@ -184,7 +202,7 @@ void folderFillingFFD(int folderCapacity, std::vector<pair<string, int>>& files,
         // Remove processed files
         std::vector<pair<string, int>> updatedFiles;
         for (size_t i = 0; i < files.size(); ++i) {
-            if (std::find(chosenFilesIndexes.begin(), chosenFilesIndexes.end(), i) == chosenFilesIndexes.end()) {
+            if (find(chosenFilesIndexes.begin(), chosenFilesIndexes.end(), i) == chosenFilesIndexes.end()) {
                 updatedFiles.push_back(files[i]);
             }
         }
@@ -195,6 +213,80 @@ void folderFillingFFD(int folderCapacity, std::vector<pair<string, int>>& files,
     }
 }
 
+
+//########################### WORST FIT DECREASING ALGORITHM ###################################
+
+// Worst-Fit Decreasing Algorithm using PRIORITY QUEUE
+vector<Folder> worstFitDecreasing(vector<pair<string, int>>& files, int capacity)
+{
+    sortFiles(files);
+
+    priority_queue<Folder, vector<Folder>, Compare> folderPriorityQueue;
+
+    for (auto file : files) 
+    {
+        int duration = file.second;
+
+        if (!folderPriorityQueue.empty() && folderPriorityQueue.top().remainingCapacity >= duration) 
+        {
+            Folder topFolder = folderPriorityQueue.top();
+            folderPriorityQueue.pop();
+
+            topFolder.files.push_back(file);
+            topFolder.remainingCapacity -= duration;
+
+            folderPriorityQueue.push(topFolder);
+        }
+        else 
+        {
+            Folder newFolder;
+            newFolder.files.push_back(file);
+            newFolder.remainingCapacity = capacity - duration;
+
+            folderPriorityQueue.push(newFolder);
+        }
+    }
+
+    vector<Folder> result;
+    while (!folderPriorityQueue.empty()) 
+    {
+        result.push_back(folderPriorityQueue.top());
+        folderPriorityQueue.pop();
+    }
+
+    return result;
+}
+
+// Folder filling using Worst-Fit Decreasing (WFD) algorithm
+void worstFitDecreasingCaller(int folderCapacity, vector<pair<string, int>> files, string testNo) 
+{
+    string folderName = "[2] WorstFit Decreasing";
+    fs::create_directory("../Sample Tests/Sample " + testNo + "/OUTPUT/" + folderName);
+
+
+
+    // Apply Worst-Fit Decreasing algorithm
+    vector<Folder> folders = worstFitDecreasing(files, folderCapacity);
+    int folderCount = 1;
+
+    // Process and save each folder
+    for (auto folder : folders) 
+    {
+     
+        vector<int> chosenFilesIndexes;
+        int currentFolderDuration = 0;
+
+        // Collect the indexes of files in this folder
+        for (int i = 0; i < folder.files.size(); i++) 
+        {
+            chosenFilesIndexes.push_back(i);
+        }
+
+        // Copy the files into the folder and write metadata
+        processFiles(folder.files, folderCount, chosenFilesIndexes, folderName, testNo, false);
+        folderCount++;
+    }
+}
 
 
 int main() 
@@ -248,8 +340,11 @@ int main()
     cout << "Folder Filling Algorithm:\n";
     folderFilling(folderCapacity, files, testNo);
 
-    cout << "first fit descending: \n";
-    folderFillingFFD(folderCapacity, files, testNo);
+    //cout << "first fit descending: \n";
+    //firstFitDecreasing(folderCapacity, files, testNo);
+
+    cout << "Worst-Fit Decreasing:\n";
+    worstFitDecreasingCaller(folderCapacity, files, testNo);
 
     //rest of algorithms should be called here
     return 0;
