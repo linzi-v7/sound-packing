@@ -2,5 +2,4 @@
   Source.cpp
 C:\Users\faris\Documents\Algo Project\sound-packing\folderfillingtest\Source.cpp(145,27): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\faris\Documents\Algo Project\sound-packing\folderfillingtest\Source.cpp(223,41): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-  LINK : C:\Users\faris\Documents\Algo Project\sound-packing\x64\Debug\Sound Packing.exe not found or not built by the last incremental link; performing full link
   folderfillingtest.vcxproj -> C:\Users\faris\Documents\Algo Project\sound-packing\x64\Debug\Sound Packing.exe

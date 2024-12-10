@@ -207,7 +207,7 @@ void folderFillingFFD(int folderCapacity, const vector<pair<string, int>>& files
 }
 
 
-void FirstFitDecreasing(int folderCapacity, vector<pair<string, int>>& files, string testNo) {
+void FirstFitDecreasing(int folderCapacity, vector<pair<string, int>> files, string testNo) {
     string folderName = "[3] FirstFit Decreasing";
     filesystem::create_directory("../Sample Tests/Sample " + testNo + "/OUTPUT/" + folderName);
     //Sort files in descending order
@@ -229,10 +229,9 @@ void FirstFitDecreasing(int folderCapacity, vector<pair<string, int>>& files, st
 
 //########################### WORST FIT DECREASING ALGORITHM ###################################
 
-// Worst-Fit Decreasing Algorithm using PRIORITY QUEUE
-vector<Folder> worstFitDecreasing(vector<pair<string, int>>& files, int capacity)
+// Worst-Fit  Algorithm using PRIORITY QUEUE
+vector<Folder> worstFitPQ(vector<pair<string, int>> files, int capacity)
 {
-    sortFiles(files);
 
     priority_queue<Folder, vector<Folder>, Compare> folderPriorityQueue;
 
@@ -271,15 +270,18 @@ vector<Folder> worstFitDecreasing(vector<pair<string, int>>& files, int capacity
 }
 
 // Folder filling using Worst-Fit Decreasing (WFD) algorithm
-void worstFitDecreasingCaller(int folderCapacity, vector<pair<string, int>> files, string testNo) 
+void worstFitDecreasingPQCaller(int folderCapacity, vector<pair<string, int>> files, string testNo) 
 {
+
+    sortFiles(files); //sort descendingly
+
     string folderName = "[2] WorstFit Decreasing";
     fs::create_directory("../Sample Tests/Sample " + testNo + "/OUTPUT/" + folderName);
 
 
 
-    // Apply Worst-Fit Decreasing algorithm
-    vector<Folder> folders = worstFitDecreasing(files, folderCapacity);
+    // Apply Worst-Fit  algorithm
+    vector<Folder> folders = worstFitPQ(files, folderCapacity);
     int folderCount = 1;
 
     // Process and save each folder
@@ -291,6 +293,39 @@ void worstFitDecreasingCaller(int folderCapacity, vector<pair<string, int>> file
 
         // Collect the indexes of files in this folder
         for (int i = 0; i < folder.files.size(); i++) 
+        {
+            chosenFilesIndexes.push_back(i);
+        }
+
+        // Copy the files into the folder and write metadata
+        processFiles(folder.files, folderCount, chosenFilesIndexes, folderName, testNo, false);
+        folderCount++;
+    }
+}
+
+// Folder filling using Worst-Fit Decreasing (WFD) algorithm
+void worstFitPQCaller(int folderCapacity, vector<pair<string, int>> files, string testNo)
+{
+
+
+    string folderName = "[2] WorstFit";
+    fs::create_directory("../Sample Tests/Sample " + testNo + "/OUTPUT/" + folderName);
+
+
+
+    // Apply Worst-Fit  algorithm
+    vector<Folder> folders = worstFitPQ(files, folderCapacity);
+    int folderCount = 1;
+
+    // Process and save each folder
+    for (auto folder : folders)
+    {
+
+        vector<int> chosenFilesIndexes;
+        int currentFolderDuration = 0;
+
+        // Collect the indexes of files in this folder
+        for (int i = 0; i < folder.files.size(); i++)
         {
             chosenFilesIndexes.push_back(i);
         }
@@ -356,8 +391,11 @@ int main()
     cout << "First-Fit Decreasing: \n";
     FirstFitDecreasing(folderCapacity, files, testNo);
 
-    cout << "Worst-Fit Decreasing:\n";
-    worstFitDecreasingCaller(folderCapacity, files, testNo);
+    cout << "Worst-Fit Decreasing using Priority Queue:\n";
+    worstFitDecreasingPQCaller(folderCapacity, files, testNo);
+
+    cout << "Worst-Fit using Priority Queue:\n";
+    worstFitPQCaller(folderCapacity, files, testNo);
 
     //rest of algorithms should be called here
     return 0;
