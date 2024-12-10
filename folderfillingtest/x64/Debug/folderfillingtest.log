@@ -1,9 +1,10 @@
 ﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(531,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (folderfillingtest.vcxproj).  This can lead to incorrect clean and rebuild behavior.
   Source.cpp
-C:\Users\dadad\source\repos\sound-packing\folderfillingtest\Source.cpp(130,27): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\dadad\source\repos\sound-packing\folderfillingtest\Source.cpp(214,46): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
-C:\Users\dadad\source\repos\sound-packing\folderfillingtest\Source.cpp(214,46): warning C4267:         with
-C:\Users\dadad\source\repos\sound-packing\folderfillingtest\Source.cpp(214,46): warning C4267:         [
-C:\Users\dadad\source\repos\sound-packing\folderfillingtest\Source.cpp(214,46): warning C4267:             _Ty=int
-C:\Users\dadad\source\repos\sound-packing\folderfillingtest\Source.cpp(214,46): warning C4267:         ]
-  folderfillingtest.vcxproj -> C:\Users\dadad\Source\Repos\sound-packing\x64\Debug\Sound Packing.exe
+C:\Users\faris\Documents\Algo Project\sound-packing\folderfillingtest\Source.cpp(129,27): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\faris\Documents\Algo Project\sound-packing\folderfillingtest\Source.cpp(176,46): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
+C:\Users\faris\Documents\Algo Project\sound-packing\folderfillingtest\Source.cpp(176,46): warning C4267:         with
+C:\Users\faris\Documents\Algo Project\sound-packing\folderfillingtest\Source.cpp(176,46): warning C4267:         [
+C:\Users\faris\Documents\Algo Project\sound-packing\folderfillingtest\Source.cpp(176,46): warning C4267:             _Ty=int
+C:\Users\faris\Documents\Algo Project\sound-packing\folderfillingtest\Source.cpp(176,46): warning C4267:         ]
+  LINK : C:\Users\faris\Documents\Algo Project\sound-packing\x64\Debug\Sound Packing.exe not found or not built by the last incremental link; performing full link
+  folderfillingtest.vcxproj -> C:\Users\faris\Documents\Algo Project\sound-packing\x64\Debug\Sound Packing.exe

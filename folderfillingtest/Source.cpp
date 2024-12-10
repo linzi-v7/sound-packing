@@ -162,6 +162,7 @@ void sortFiles(std::vector<std::pair<std::string, int>>& files) {
 
 //Folder filling using First-Fit Decreasing (FFD) algorithm
 void folderFillingFFD(int folderCapacity, std::vector<pair<string, int>>& files, std::string testNo) {
+    sortFiles(files);
     std::string folderName = "[3] FirstFit Decreasing";
     filesystem::create_directory("../Sample Tests/Sample " + testNo + "/OUTPUT/" + folderName);
     int folderCount = 1;
@@ -248,7 +249,6 @@ int main()
     folderFilling(folderCapacity, files, testNo);
 
     cout << "first fit descending: \n";
-    sortFiles(files);
     folderFillingFFD(folderCapacity, files, testNo);
 
     //rest of algorithms should be called here
