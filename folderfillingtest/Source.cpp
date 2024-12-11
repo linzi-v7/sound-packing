@@ -343,6 +343,68 @@ void worstFitPQCaller(int folderCapacity, vector<pair<string, int>> files, strin
     }
 }
 
+//########################### WORST FIT DECREASING LINEAR ALGORITHM ###################################
+
+// Worst-Fit Decreasing Linear algorithm - handles file placement and folder filling
+vector<Folder> worstFitDecreasingLinearAlgorithm(int folderCapacity, vector<pair<string, int>>& files) {
+    vector<Folder> folders;
+
+    // Iterate through each file
+    for (const auto& file : files) {
+        string fileName = file.first;
+        int fileDuration = file.second;
+
+        // Find the folder with the most remaining capacity (linear search)
+        int maxCapacityIndex = -1;
+        int maxCapacity = -1;
+        for (int i = 0; i < folders.size(); ++i) {
+            if (folders[i].remainingCapacity >= fileDuration && folders[i].remainingCapacity > maxCapacity) {
+                maxCapacity = folders[i].remainingCapacity;
+                maxCapacityIndex = i;
+            }
+        }
+
+        // Place file in the folder with the most capacity or create a new folder
+        if (maxCapacityIndex != -1) {
+            folders[maxCapacityIndex].files.emplace_back(fileName, fileDuration);
+            folders[maxCapacityIndex].remainingCapacity -= fileDuration;
+        }
+        else {
+            Folder newFolder;
+            newFolder.files.emplace_back(fileName, fileDuration);
+            newFolder.remainingCapacity = folderCapacity - fileDuration;
+            folders.push_back(newFolder);
+        }
+    }
+
+    return folders;
+}
+
+// Worst-Fit Decreasing Linear caller function - handles the setup and processing of folders
+void worstFitDecreasingLinear(int folderCapacity, vector<pair<string, int>> files, string testNo) {
+    string folderName = "[2.1] WorstFit Decreasing Linear";
+    filesystem::create_directory("../Sample Tests/Sample " + testNo + "/OUTPUT/" + folderName);
+
+    // Sort files in descending order
+    sortFiles(files);
+
+    // Apply Worst-Fit Decreasing Linear algorithm
+    vector<Folder> folders = worstFitDecreasingLinearAlgorithm(folderCapacity, files);
+
+    // Process and save folders
+    int folderCount = 1;
+    for (size_t i = 0; i < folders.size(); ++i) {
+        vector<int> chosenFilesIndexes;
+        for (size_t j = 0; j < folders[i].files.size(); ++j) {
+            chosenFilesIndexes.push_back(j); // Push indexes relative to the current folder
+        }
+
+        // Process files and save metadata
+        processFiles(folders[i].files, folderCount++, chosenFilesIndexes, folderName, testNo, false);
+    }
+}
+
+
 
 //########################### MAIN ###################################
 
@@ -405,6 +467,10 @@ int main()
 
     cout << "Worst-Fit using Priority Queue:\n";
     worstFitPQCaller(folderCapacity, files, testNo);
+
+    cout << "Worst-Fit Decreasing using Linear Search:\n";
+    worstFitDecreasingLinear(folderCapacity, files, testNo);
+
 
     //rest of algorithms should be called here
     return 0;
