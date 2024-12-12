@@ -282,7 +282,7 @@ void worstFitDecreasingPQCaller(int folderCapacity, vector<pair<string, int>> fi
 
     sortFiles(files); //sort descendingly
 
-    string folderName = "[2] WorstFit Decreasing";
+    string folderName = "[2.0] WorstFit Decreasing PQ";
     fs::create_directory("../Sample Tests/Sample " + testNo + "/OUTPUT/" + folderName);
 
 
@@ -315,7 +315,7 @@ void worstFitPQCaller(int folderCapacity, vector<pair<string, int>> files, strin
 {
 
 
-    string folderName = "[2] WorstFit";
+    string folderName = "[1.0] WorstFit PQ";
     fs::create_directory("../Sample Tests/Sample " + testNo + "/OUTPUT/" + folderName);
 
 
@@ -346,7 +346,7 @@ void worstFitPQCaller(int folderCapacity, vector<pair<string, int>> files, strin
 //########################### WORST FIT DECREASING LINEAR ALGORITHM ###################################
 
 // Worst-Fit Decreasing Linear algorithm - handles file placement and folder filling
-vector<Folder> worstFitDecreasingLinearAlgorithm(int folderCapacity, vector<pair<string, int>>& files) {
+vector<Folder> worstFitLinear(int folderCapacity, vector<pair<string, int>>& files) {
     vector<Folder> folders;
 
     // Iterate through each file
@@ -381,7 +381,7 @@ vector<Folder> worstFitDecreasingLinearAlgorithm(int folderCapacity, vector<pair
 }
 
 // Worst-Fit Decreasing Linear caller function - handles the setup and processing of folders
-void worstFitDecreasingLinear(int folderCapacity, vector<pair<string, int>> files, string testNo) {
+void WFDLinearCaller(int folderCapacity, vector<pair<string, int>> files, string testNo) {
     string folderName = "[2.1] WorstFit Decreasing Linear";
     filesystem::create_directory("../Sample Tests/Sample " + testNo + "/OUTPUT/" + folderName);
 
@@ -389,7 +389,7 @@ void worstFitDecreasingLinear(int folderCapacity, vector<pair<string, int>> file
     sortFiles(files);
 
     // Apply Worst-Fit Decreasing Linear algorithm
-    vector<Folder> folders = worstFitDecreasingLinearAlgorithm(folderCapacity, files);
+    vector<Folder> folders = worstFitLinear(folderCapacity, files);
 
     // Process and save folders
     int folderCount = 1;
@@ -404,6 +404,26 @@ void worstFitDecreasingLinear(int folderCapacity, vector<pair<string, int>> file
     }
 }
 
+void worstFitLinearCaller(int folderCapacity, vector<pair<string, int>> files, string testNo) {
+    string folderName = "[1.1] WorstFit Linear";
+    filesystem::create_directory("../Sample Tests/Sample " + testNo + "/OUTPUT/" + folderName);
+
+
+    // Apply Worst-Fit Decreasing Linear algorithm
+    vector<Folder> folders = worstFitLinear(folderCapacity, files);
+
+    // Process and save folders
+    int folderCount = 1;
+    for (size_t i = 0; i < folders.size(); ++i) {
+        vector<int> chosenFilesIndexes;
+        for (size_t j = 0; j < folders[i].files.size(); ++j) {
+            chosenFilesIndexes.push_back(j); // Push indexes relative to the current folder
+        }
+
+        // Process files and save metadata
+        processFiles(folders[i].files, folderCount++, chosenFilesIndexes, folderName, testNo, false);
+    }
+}
 
 
 //########################### MAIN ###################################
@@ -455,21 +475,31 @@ int main()
 
     filesystem::create_directory("../Sample Tests/Sample " + testNo + "/OUTPUT");
 
-
-    cout << "Folder Filling Algorithm:\n";
-    folderFilling(folderCapacity, files, testNo);
-
-    cout << "First-Fit Decreasing: \n";
-    FirstFitDecreasing(folderCapacity, files, testNo);
-
-    cout << "Worst-Fit Decreasing using Priority Queue:\n";
-    worstFitDecreasingPQCaller(folderCapacity, files, testNo);
-
-    cout << "Worst-Fit using Priority Queue:\n";
+    cout << "1: Worst-Fit using Priority Queue:\n";
     worstFitPQCaller(folderCapacity, files, testNo);
 
-    cout << "Worst-Fit Decreasing using Linear Search:\n";
-    worstFitDecreasingLinear(folderCapacity, files, testNo);
+    cout << "1.1: Worst-Fit using Linear Search:\n";
+    worstFitLinearCaller(folderCapacity, files, testNo);
+
+    cout << "2: Worst-Fit Decreasing using Priority Queue:\n";
+    worstFitDecreasingPQCaller(folderCapacity, files, testNo);
+
+    cout << "2.1: Worst-Fit Decreasing using Linear Search:\n";
+    WFDLinearCaller(folderCapacity, files, testNo);
+
+    cout << "3: First-Fit Decreasing: \n";
+    FirstFitDecreasing(folderCapacity, files, testNo);
+
+    cout << "4: Folder Filling Algorithm:\n";
+    folderFilling(folderCapacity, files, testNo);
+
+
+
+
+
+
+
+
 
 
     //rest of algorithms should be called here

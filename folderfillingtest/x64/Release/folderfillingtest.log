@@ -1,8 +1,20 @@
-﻿  Source.cpp
-C:\Users\faris\source\repos\folderfillingtest\folderfillingtest\Source.cpp(115,27): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(531,5): warning MSB8028: The intermediate directory (x64\Release\) contains files shared from another project (folderfillingtest.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  Source.cpp
+C:\Users\faris\Documents\Algo Project\sound-packing\folderfillingtest\Source.cpp(149,27): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\faris\Documents\Algo Project\sound-packing\folderfillingtest\Source.cpp(231,41): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\faris\Documents\Algo Project\sound-packing\folderfillingtest\Source.cpp(399,42): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
+C:\Users\faris\Documents\Algo Project\sound-packing\folderfillingtest\Source.cpp(399,42): warning C4267:         with
+C:\Users\faris\Documents\Algo Project\sound-packing\folderfillingtest\Source.cpp(399,42): warning C4267:         [
+C:\Users\faris\Documents\Algo Project\sound-packing\folderfillingtest\Source.cpp(399,42): warning C4267:             _Ty=int
+C:\Users\faris\Documents\Algo Project\sound-packing\folderfillingtest\Source.cpp(399,42): warning C4267:         ]
+C:\Users\faris\Documents\Algo Project\sound-packing\folderfillingtest\Source.cpp(420,42): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
+C:\Users\faris\Documents\Algo Project\sound-packing\folderfillingtest\Source.cpp(420,42): warning C4267:         with
+C:\Users\faris\Documents\Algo Project\sound-packing\folderfillingtest\Source.cpp(420,42): warning C4267:         [
+C:\Users\faris\Documents\Algo Project\sound-packing\folderfillingtest\Source.cpp(420,42): warning C4267:             _Ty=int
+C:\Users\faris\Documents\Algo Project\sound-packing\folderfillingtest\Source.cpp(420,42): warning C4267:         ]
   Generating code
-  0 of 797 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+  2 of 1012 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+    1 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
-  folderfillingtest.vcxproj -> C:\Users\faris\source\repos\folderfillingtest\x64\Release\folderfillingtest.exe
+  folderfillingtest.vcxproj -> C:\Users\faris\Documents\Algo Project\sound-packing\x64\Release\Sound Packing.exe
