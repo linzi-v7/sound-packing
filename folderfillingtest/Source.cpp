@@ -431,9 +431,9 @@ void worstFitLinearCaller(int folderCapacity, vector<pair<string, int>> files, s
 int main() 
 {
     int x = 0;
-    while (x != 1 && x != 2 && x != 3) 
+    while (x < 1 || x > 6 || (x == 0))
     {
-        cout << "enter sample number (1,2,3): ";
+        cout << "enter sample number (1,2,3,4,5,6): ";
         cin >> x;
     }
 
