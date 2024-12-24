@@ -134,7 +134,7 @@ int folderFillingAlgorithm(int capacity, int numOfFiles, vector<pair<string, int
 
 
 // Folder filling caller
-// TIME COMPLEXITY: O(n^2 * m) where n is number of files and m is desired capacity
+// TIME COMPLEXITY: FOLDER PROCESSING + O(n^2 * m) where n is number of files and m is desired capacity
 void folderFilling(int folderCapacity, vector<pair<string, int>> files, string testNo) 
 {
     string folderName = "[4] FolderFilling";  //θ(1)
