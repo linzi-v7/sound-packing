@@ -50,6 +50,14 @@ string secondsToTime(int totalSeconds)
     return result;
 }
 
+// Sort files in descending order
+bool compareFiles(const std::pair<std::string, int>& a, const std::pair<std::string, int>& b) {
+    return a.second > b.second;
+}
+void sortFiles(std::vector<std::pair<std::string, int>>& files) {
+    std::sort(files.begin(), files.end(), compareFiles);
+}
+
 
 //function that copies BATCH OF FILES into a destination folder.
 //this function will not work properly with processing files one by one each call.
@@ -98,140 +106,86 @@ void processFiles(vector<pair<string, int>>& files, int folderCount, vector<int>
 }
 
 
-//########################### FOLDER FILLING DP ALGORITHM ###################################
 
-// folder filling algorithm using dynamic programming bottom up approach
-//TIME COMPLEXITY: θ(n*m)
-int folderFillingAlgorithm(int capacity, int numOfFiles, vector<pair<string, int>>& files, vector<vector<int>>& dpMemory) 
-{
-    
-    // filling the DP table
-    for (int i = 0; i <= numOfFiles; i++) //θ(n*m) where n is number of files, m is the desired capacity
-    {
-        for (int j = 0; j <= capacity; j++) //θ(m) where m is the desired capacity
-        {
-            if (i == 0 || j == 0) //no files left or no capacity //θ(1)
-            {
-                dpMemory[i][j] = 0;  //θ(1)
+//########################### WORST FIT (DECREASING) LINEAR ALGORITHM ###################################
+
+// Worst-Fit Linear algorithm - handles file placement and folder filling
+vector<Folder> worstFitLinear(int folderCapacity, vector<pair<string, int>>& files) {
+    vector<Folder> folders;
+
+    // Iterate through each file
+    for (const auto& file : files) {
+        string fileName = file.first;
+        int fileDuration = file.second;
+
+        // Find the folder with the most remaining capacity (linear search)
+        int maxCapacityIndex = -1;
+        int maxCapacity = -1;
+        for (int i = 0; i < folders.size(); ++i) {
+            if (folders[i].remainingCapacity >= fileDuration && folders[i].remainingCapacity > maxCapacity) {
+                maxCapacity = folders[i].remainingCapacity;
+                maxCapacityIndex = i;
             }
-            else if (files[i - 1].second <= j)  // if the current file fits  //θ(1)
-            {
-                // get max of including or excluding the file
-                dpMemory[i][j] = max(dpMemory[i - 1][j], 
-                                dpMemory[i - 1][j - files[i - 1].second] + files[i - 1].second);  //θ(1)
-            }
-            else 
-            {
-                // If the file doesnt fit, exclude it
-                dpMemory[i][j] = dpMemory[i - 1][j];   //θ(1)
-            }
+        }
+
+        // Place file in the folder with the most capacity or create a new folder
+        if (maxCapacityIndex != -1) {
+            folders[maxCapacityIndex].files.emplace_back(fileName, fileDuration);
+            folders[maxCapacityIndex].remainingCapacity -= fileDuration;
+        }
+        else {
+            Folder newFolder;
+            newFolder.files.emplace_back(fileName, fileDuration);
+            newFolder.remainingCapacity = folderCapacity - fileDuration;
+            folders.push_back(newFolder);
         }
     }
 
-    //max capacity of folder (no combination of files yet)
-    return dpMemory[numOfFiles][capacity];  //θ(1)
+    return folders;
 }
 
-
-// Folder filling caller
-// TIME COMPLEXITY: FOLDER PROCESSING + O(n^2 * m) where n is number of files and m is desired capacity
-void folderFilling(int folderCapacity, vector<pair<string, int>> files, string testNo) 
-{
-    string folderName = "[4] FolderFilling";  //θ(1)
+// Worst-Fit Decreasing Linear caller function - handles the setup and processing of folders
+void WFDLinearCaller(int folderCapacity, vector<pair<string, int>> files, string testNo) {
+    string folderName = "[2.1] WorstFit Decreasing Linear";
     filesystem::create_directory("../Sample Tests/Sample " + testNo + "/OUTPUT/" + folderName);
 
-    int folderCount = 1;   //θ(1)
-
-    //2D Dynamic Array for saving DP results
-    vector<vector<int>> dpMemory(files.size() + 1, vector<int>(folderCapacity + 1, 0));  //θ(1)
-
-    //worst case scenario: each file is put on a folder by itself, running the folderFillingAlgorithm n times.
-    while (!files.empty()) // O(n*n*m) = O(n^2 * m) where n is number of files and m is desired capacity
-    {
-
-        int numberOfFiles = files.size();  //θ(1)
-
-        // get max duration for the current folder
-        int maxDuration = folderFillingAlgorithm(folderCapacity, numberOfFiles, files, dpMemory); //θ(n * m)
-
-        // backtracking phase
-        vector<int> chosenFilesIndexes;  
-        int remainingCapacity = folderCapacity;  //θ(1)
-        for (int i = numberOfFiles; i > 0; --i) //θ(n) where n is number of files
-        {
-            //if previous row has different value, means we took the file to maximize capacity
-            if (dpMemory[i][remainingCapacity] != dpMemory[i - 1][remainingCapacity])  //θ(1)
-            {
-                chosenFilesIndexes.push_back(i - 1); // file index is 0 based  //O(1)
-                remainingCapacity -= files[i - 1].second;    //θ(1)
-            }
-        }
-
-
-        //copy chosen files to the current folder and remove them to continue filling other folders
-        processFiles(files, folderCount, chosenFilesIndexes, folderName, testNo, true);
-        folderCount++; //θ(1)
-    }
-}
-
-
-
-//########################### FIRST FIT DECREASING ALGORITHM ###################################
-
-
-// Sort files in descending order
-bool compareFiles(const std::pair<std::string, int>& a, const std::pair<std::string, int>& b) {
-    return a.second > b.second;
-}
-void sortFiles(std::vector<std::pair<std::string, int>>& files) {
-    std::sort(files.begin(), files.end(), compareFiles);
-}
-
-
-//Folder filling using First-Fit Decreasing (FFD) algorithm
-void folderFillingFFD(int folderCapacity, const vector<pair<string, int>>& files, vector<vector<int>>& folderFileIndexes) {
-
-    // Vector to store remaining capacity of each folder
-    vector<int> folderCapacities;
-
-    // Iterate over each file
-    for (int fileIndex = 0; fileIndex < files.size(); ++fileIndex) {
-        const auto& file = files[fileIndex];
-        bool placed = false;
-
-        // Try to place the file in the first folder with enough capacity
-        for (int folderIndex = 0; folderIndex < folderCapacities.size(); ++folderIndex) {
-            if (file.second <= folderCapacities[folderIndex]) {
-                folderCapacities[folderIndex] -= file.second; // Update folder's remaining capacity
-                folderFileIndexes[folderIndex].push_back(fileIndex); // Track file placement
-                placed = true;
-                break;
-            }
-        }
-
-        // If the file couldn't be placed, create a new folder
-        if (!placed) {
-            folderCapacities.push_back(folderCapacity - file.second); // Add a new folder with updated capacity
-            folderFileIndexes.emplace_back(vector<int>{fileIndex}); // Add file to new folder
-        }
-    }
-}
-
-
-void FirstFitDecreasing(int folderCapacity, vector<pair<string, int>> files, string testNo) {
-    string folderName = "[3] FirstFit Decreasing";
-    filesystem::create_directory("../Sample Tests/Sample " + testNo + "/OUTPUT/" + folderName);
-    //Sort files in descending order
+    // Sort files in descending order
     sortFiles(files);
 
-    //Assign files to folders using FFD algorithm
-    vector<vector<int>> folderFileIndexes; // Holds file indices for each folder
-    folderFillingFFD(folderCapacity, files, folderFileIndexes);
+    // Apply Worst-Fit Decreasing Linear algorithm
+    vector<Folder> folders = worstFitLinear(folderCapacity, files);
 
-    //Process each folder
-    for (size_t folderIndex = 0; folderIndex < folderFileIndexes.size(); ++folderIndex) {
-        const auto& fileIndexes = folderFileIndexes[folderIndex];
-        processFiles(files, folderIndex + 1, const_cast<vector<int>&>(fileIndexes), folderName, testNo, false);
+    // Process and save folders
+    int folderCount = 1;
+    for (size_t i = 0; i < folders.size(); ++i) {
+        vector<int> chosenFilesIndexes;
+        for (size_t j = 0; j < folders[i].files.size(); ++j) {
+            chosenFilesIndexes.push_back(j); // Push indexes relative to the current folder
+        }
+
+        // Process files and save metadata
+        processFiles(folders[i].files, folderCount++, chosenFilesIndexes, folderName, testNo, false);
+    }
+}
+
+void worstFitLinearCaller(int folderCapacity, vector<pair<string, int>> files, string testNo) {
+    string folderName = "[1.1] WorstFit Linear";
+    filesystem::create_directory("../Sample Tests/Sample " + testNo + "/OUTPUT/" + folderName);
+
+
+    // Apply Worst-Fit Decreasing Linear algorithm
+    vector<Folder> folders = worstFitLinear(folderCapacity, files);
+
+    // Process and save folders
+    int folderCount = 1;
+    for (size_t i = 0; i < folders.size(); ++i) {
+        vector<int> chosenFilesIndexes;
+        for (size_t j = 0; j < folders[i].files.size(); ++j) {
+            chosenFilesIndexes.push_back(j); // Push indexes relative to the current folder
+        }
+
+        // Process files and save metadata
+        processFiles(folders[i].files, folderCount++, chosenFilesIndexes, folderName, testNo, false);
     }
 }
 
@@ -346,87 +300,134 @@ void worstFitPQCaller(int folderCapacity, vector<pair<string, int>> files, strin
     }
 }
 
-//########################### WORST FIT DECREASING LINEAR ALGORITHM ###################################
 
-// Worst-Fit Decreasing Linear algorithm - handles file placement and folder filling
-vector<Folder> worstFitLinear(int folderCapacity, vector<pair<string, int>>& files) {
-    vector<Folder> folders;
+//########################### FIRST FIT DECREASING ALGORITHM ###################################
 
-    // Iterate through each file
-    for (const auto& file : files) {
-        string fileName = file.first;
-        int fileDuration = file.second;
+//Folder filling using First-Fit Decreasing (FFD) algorithm
+void folderFillingFFD(int folderCapacity, const vector<pair<string, int>>& files, vector<vector<int>>& folderFileIndexes) {
 
-        // Find the folder with the most remaining capacity (linear search)
-        int maxCapacityIndex = -1;
-        int maxCapacity = -1;
-        for (int i = 0; i < folders.size(); ++i) {
-            if (folders[i].remainingCapacity >= fileDuration && folders[i].remainingCapacity > maxCapacity) {
-                maxCapacity = folders[i].remainingCapacity;
-                maxCapacityIndex = i;
+    // Vector to store remaining capacity of each folder
+    vector<int> folderCapacities;
+
+    // Iterate over each file
+    for (int fileIndex = 0; fileIndex < files.size(); ++fileIndex) {
+        const auto& file = files[fileIndex];
+        bool placed = false;
+
+        // Try to place the file in the first folder with enough capacity
+        for (int folderIndex = 0; folderIndex < folderCapacities.size(); ++folderIndex) {
+            if (file.second <= folderCapacities[folderIndex]) {
+                folderCapacities[folderIndex] -= file.second; // Update folder's remaining capacity
+                folderFileIndexes[folderIndex].push_back(fileIndex); // Track file placement
+                placed = true;
+                break;
             }
         }
 
-        // Place file in the folder with the most capacity or create a new folder
-        if (maxCapacityIndex != -1) {
-            folders[maxCapacityIndex].files.emplace_back(fileName, fileDuration);
-            folders[maxCapacityIndex].remainingCapacity -= fileDuration;
-        }
-        else {
-            Folder newFolder;
-            newFolder.files.emplace_back(fileName, fileDuration);
-            newFolder.remainingCapacity = folderCapacity - fileDuration;
-            folders.push_back(newFolder);
+        // If the file couldn't be placed, create a new folder
+        if (!placed) {
+            folderCapacities.push_back(folderCapacity - file.second); // Add a new folder with updated capacity
+            folderFileIndexes.emplace_back(vector<int>{fileIndex}); // Add file to new folder
         }
     }
-
-    return folders;
 }
 
-// Worst-Fit Decreasing Linear caller function - handles the setup and processing of folders
-void WFDLinearCaller(int folderCapacity, vector<pair<string, int>> files, string testNo) {
-    string folderName = "[2.1] WorstFit Decreasing Linear";
-    filesystem::create_directory("../Sample Tests/Sample " + testNo + "/OUTPUT/" + folderName);
 
-    // Sort files in descending order
+void FirstFitDecreasing(int folderCapacity, vector<pair<string, int>> files, string testNo) {
+    string folderName = "[3] FirstFit Decreasing";
+    filesystem::create_directory("../Sample Tests/Sample " + testNo + "/OUTPUT/" + folderName);
+    //Sort files in descending order
     sortFiles(files);
 
-    // Apply Worst-Fit Decreasing Linear algorithm
-    vector<Folder> folders = worstFitLinear(folderCapacity, files);
+    //Assign files to folders using FFD algorithm
+    vector<vector<int>> folderFileIndexes; // Holds file indices for each folder
+    folderFillingFFD(folderCapacity, files, folderFileIndexes);
 
-    // Process and save folders
-    int folderCount = 1;
-    for (size_t i = 0; i < folders.size(); ++i) {
-        vector<int> chosenFilesIndexes;
-        for (size_t j = 0; j < folders[i].files.size(); ++j) {
-            chosenFilesIndexes.push_back(j); // Push indexes relative to the current folder
-        }
-
-        // Process files and save metadata
-        processFiles(folders[i].files, folderCount++, chosenFilesIndexes, folderName, testNo, false);
+    //Process each folder
+    for (size_t folderIndex = 0; folderIndex < folderFileIndexes.size(); ++folderIndex) {
+        const auto& fileIndexes = folderFileIndexes[folderIndex];
+        processFiles(files, folderIndex + 1, const_cast<vector<int>&>(fileIndexes), folderName, testNo, false);
     }
 }
 
-void worstFitLinearCaller(int folderCapacity, vector<pair<string, int>> files, string testNo) {
-    string folderName = "[1.1] WorstFit Linear";
+
+
+//########################### FOLDER FILLING DP ALGORITHM ###################################
+
+// folder filling algorithm using dynamic programming bottom up approach
+//TIME COMPLEXITY: θ(n*m)
+int folderFillingAlgorithm(int capacity, int numOfFiles, vector<pair<string, int>>& files, vector<vector<int>>& dpMemory)
+{
+
+    // filling the DP table
+    for (int i = 0; i <= numOfFiles; i++) //θ(n*m) where n is number of files, m is the desired capacity
+    {
+        for (int j = 0; j <= capacity; j++) //θ(m) where m is the desired capacity
+        {
+            if (i == 0 || j == 0) //no files left or no capacity //θ(1)
+            {
+                dpMemory[i][j] = 0;  //θ(1)
+            }
+            else if (files[i - 1].second <= j)  // if the current file fits  //θ(1)
+            {
+                // get max of including or excluding the file
+                dpMemory[i][j] = max(dpMemory[i - 1][j],
+                    dpMemory[i - 1][j - files[i - 1].second] + files[i - 1].second);  //θ(1)
+            }
+            else
+            {
+                // If the file doesnt fit, exclude it
+                dpMemory[i][j] = dpMemory[i - 1][j];   //θ(1)
+            }
+        }
+    }
+
+    //max capacity of folder (no combination of files yet)
+    return dpMemory[numOfFiles][capacity];  //θ(1)
+}
+
+
+// Folder filling caller
+// TIME COMPLEXITY: FOLDER PROCESSING + O(n^2 * m) where n is number of files and m is desired capacity
+void folderFilling(int folderCapacity, vector<pair<string, int>> files, string testNo)
+{
+    string folderName = "[4] FolderFilling";  //θ(1)
     filesystem::create_directory("../Sample Tests/Sample " + testNo + "/OUTPUT/" + folderName);
 
+    int folderCount = 1;   //θ(1)
 
-    // Apply Worst-Fit Decreasing Linear algorithm
-    vector<Folder> folders = worstFitLinear(folderCapacity, files);
+    //2D Dynamic Array for saving DP results
+    vector<vector<int>> dpMemory(files.size() + 1, vector<int>(folderCapacity + 1, 0));  //θ(1)
 
-    // Process and save folders
-    int folderCount = 1;
-    for (size_t i = 0; i < folders.size(); ++i) {
+    //worst case scenario: each file is put on a folder by itself, running the folderFillingAlgorithm n times.
+    while (!files.empty()) // O(n*n*m) = O(n^2 * m) where n is number of files and m is desired capacity
+    {
+
+        int numberOfFiles = files.size();  //θ(1)
+
+        // get max duration for the current folder
+        int maxDuration = folderFillingAlgorithm(folderCapacity, numberOfFiles, files, dpMemory); //θ(n * m)
+
+        // backtracking phase
         vector<int> chosenFilesIndexes;
-        for (size_t j = 0; j < folders[i].files.size(); ++j) {
-            chosenFilesIndexes.push_back(j); // Push indexes relative to the current folder
+        int remainingCapacity = folderCapacity;  //θ(1)
+        for (int i = numberOfFiles; i > 0; --i) //θ(n) where n is number of files
+        {
+            //if previous row has different value, means we took the file to maximize capacity
+            if (dpMemory[i][remainingCapacity] != dpMemory[i - 1][remainingCapacity])  //θ(1)
+            {
+                chosenFilesIndexes.push_back(i - 1); // file index is 0 based  //O(1)
+                remainingCapacity -= files[i - 1].second;    //θ(1)
+            }
         }
 
-        // Process files and save metadata
-        processFiles(folders[i].files, folderCount++, chosenFilesIndexes, folderName, testNo, false);
+
+        //copy chosen files to the current folder and remove them to continue filling other folders
+        processFiles(files, folderCount, chosenFilesIndexes, folderName, testNo, true);
+        folderCount++; //θ(1)
     }
 }
+
 
 
 //########################### MAIN ###################################
@@ -497,14 +498,6 @@ int main()
 
     cout << "4: Folder Filling Algorithm:\n";
     folderFilling(folderCapacity, files, testNo);
-
-
-
-
-
-
-
-
 
 
     //rest of algorithms should be called here
