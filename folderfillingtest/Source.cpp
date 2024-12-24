@@ -1,4 +1,4 @@
-#include <iostream>
+﻿#include <iostream>
 #include <vector>
 #include <string>
 #include <sstream>
@@ -101,73 +101,76 @@ void processFiles(vector<pair<string, int>>& files, int folderCount, vector<int>
 //########################### FOLDER FILLING DP ALGORITHM ###################################
 
 // folder filling algorithm using dynamic programming bottom up approach
+//TIME COMPLEXITY: θ(n*m)
 int folderFillingAlgorithm(int capacity, int numOfFiles, vector<pair<string, int>>& files, vector<vector<int>>& dpMemory) 
 {
     
     // filling the DP table
-    for (int i = 0; i <= numOfFiles; i++) 
+    for (int i = 0; i <= numOfFiles; i++) //θ(n*m) where n is number of files, m is the desired capacity
     {
-        for (int j = 0; j <= capacity; j++) 
+        for (int j = 0; j <= capacity; j++) //θ(m) where m is the desired capacity
         {
-            if (i == 0 || j == 0) //no files left or no capacity
+            if (i == 0 || j == 0) //no files left or no capacity //θ(1)
             {
-                dpMemory[i][j] = 0;
+                dpMemory[i][j] = 0;  //θ(1)
             }
-            else if (files[i - 1].second <= j)  // if the current file fits
+            else if (files[i - 1].second <= j)  // if the current file fits  //θ(1)
             {
                 // get max of including or excluding the file
                 dpMemory[i][j] = max(dpMemory[i - 1][j], 
-                                dpMemory[i - 1][j - files[i - 1].second] + files[i - 1].second);
+                                dpMemory[i - 1][j - files[i - 1].second] + files[i - 1].second);  //θ(1)
             }
             else 
             {
                 // If the file doesnt fit, exclude it
-                dpMemory[i][j] = dpMemory[i - 1][j];
+                dpMemory[i][j] = dpMemory[i - 1][j];   //θ(1)
             }
         }
     }
 
     //max capacity of folder (no combination of files yet)
-    return dpMemory[numOfFiles][capacity];
+    return dpMemory[numOfFiles][capacity];  //θ(1)
 }
 
 
 // Folder filling caller
+// TIME COMPLEXITY: O(n^2 * m) where n is number of files and m is desired capacity
 void folderFilling(int folderCapacity, vector<pair<string, int>> files, string testNo) 
 {
-    string folderName = "[4] FolderFilling";
+    string folderName = "[4] FolderFilling";  //θ(1)
     filesystem::create_directory("../Sample Tests/Sample " + testNo + "/OUTPUT/" + folderName);
 
-    int folderCount = 1;
+    int folderCount = 1;   //θ(1)
 
     //2D Dynamic Array for saving DP results
-    vector<vector<int>> dpMemory(files.size() + 1, vector<int>(folderCapacity + 1, 0));
+    vector<vector<int>> dpMemory(files.size() + 1, vector<int>(folderCapacity + 1, 0));  //θ(1)
 
-    while (!files.empty()) 
+    //worst case scenario: each file is put on a folder by itself, running the folderFillingAlgorithm n times.
+    while (!files.empty()) // O(n*n*m) = O(n^2 * m) where n is number of files and m is desired capacity
     {
 
-        int numberOfFiles = files.size();
+        int numberOfFiles = files.size();  //θ(1)
 
         // get max duration for the current folder
-        int maxDuration = folderFillingAlgorithm(folderCapacity, numberOfFiles, files, dpMemory);
+        int maxDuration = folderFillingAlgorithm(folderCapacity, numberOfFiles, files, dpMemory); //θ(n * m)
 
         // backtracking phase
-        vector<int> chosenFilesIndexes;
-        int remainingCapacity = folderCapacity;
-        for (int i = numberOfFiles; i > 0; --i) 
+        vector<int> chosenFilesIndexes;  
+        int remainingCapacity = folderCapacity;  //θ(1)
+        for (int i = numberOfFiles; i > 0; --i) //θ(n) where n is number of files
         {
             //if previous row has different value, means we took the file to maximize capacity
-            if (dpMemory[i][remainingCapacity] != dpMemory[i - 1][remainingCapacity]) 
+            if (dpMemory[i][remainingCapacity] != dpMemory[i - 1][remainingCapacity])  //θ(1)
             {
-                chosenFilesIndexes.push_back(i - 1); // file index is 0 based
-                remainingCapacity -= files[i - 1].second;
+                chosenFilesIndexes.push_back(i - 1); // file index is 0 based  //O(1)
+                remainingCapacity -= files[i - 1].second;    //θ(1)
             }
         }
 
 
         //copy chosen files to the current folder and remove them to continue filling other folders
         processFiles(files, folderCount, chosenFilesIndexes, folderName, testNo, true);
-        folderCount++;
+        folderCount++; //θ(1)
     }
 }
 
