@@ -16,7 +16,7 @@ namespace fs = filesystem;
 // Folder structure to represent each folder
 struct Folder {
     vector<pair<string, int>> files;        // Files in this folder
-    int remainingCapacity;                  // Remaining capacity of the folder
+    int remainingCapacity = 0;                  // Remaining capacity of the folder
 };
 
 // Comparator for priority queue (max-heap)
@@ -105,7 +105,20 @@ void processFiles(vector<pair<string, int>>& files, int folderCount, vector<int>
     metadataFile.close();
 }
 
+void displayProgressBar(int current, int total) {
+    const int barWidth = 50; // Width of the progress bar
+    float progress = (float)current / total;
 
+    cout << "[";
+    int pos = barWidth * progress;
+    for (int i = 0; i < barWidth; ++i) {
+        if (i < pos) cout << "=";
+        else if (i == pos) cout << ">";
+        else cout << " ";
+    }
+    cout << "] " << int(progress * 100.0) << " %\r";
+    cout.flush();
+}
 
 //########################### WORST FIT (DECREASING) LINEAR ALGORITHM ###################################
 
@@ -167,8 +180,9 @@ void WFDLinearCaller(int folderCapacity, vector<pair<string, int>> files, string
 
         // Process files and save metadata
 		processFiles(folders[i].files, folderCount++, chosenFilesIndexes, folderName, testNo, false); //O(1)
+        displayProgressBar(i + 1, folders.size()); // Update progress bar
     }
-	cout << "folder count: " << folderCount - 1 << endl; //O(1)
+	cout << "\nfolder count: " << folderCount - 1 << endl;
 }
 
 //the caller function for Worst-Fit Linear algorithm
@@ -190,8 +204,9 @@ void worstFitLinearCaller(int folderCapacity, vector<pair<string, int>> files, s
         }
         // Process files and save metadata
 		processFiles(folders[i].files, folderCount++, chosenFilesIndexes, folderName, testNo, false); //O(1)
+        displayProgressBar(i + 1, folders.size()); // Update progress bar
     }
-	cout << "folder count: " << folderCount - 1 << endl; //O(1)
+    cout << "\nfolder count: " << folderCount - 1 << endl; //O(1)
 }
 
 
@@ -212,7 +227,7 @@ vector<Folder> worstFitPQ(vector<pair<string, int>> files, int capacity) // O(n 
         int duration = file.second; // O(1)
 
         // Check if the largest folder in the queue can fit the file
-        if (!folderPriorityQueue.empty() && folderPriorityQueue.top().remainingCapacity >= duration) // O(log m)
+        if (!folderPriorityQueue.empty() && folderPriorityQueue.top().remainingCapacity >= duration)//O(log m)
         {
             // Update the top folder and re-insert into the queue
             Folder topFolder = folderPriorityQueue.top(); // O(1)
@@ -257,10 +272,12 @@ void worstFitDecreasingPQCaller(int folderCapacity, vector<pair<string, int>> fi
     // Apply the Worst-Fit algorithm
 	vector<Folder> folders = worstFitPQ(files, folderCapacity); // O(n log m)
     int folderCount = 1; // O(1) To number folders sequentially
-
+    
     // Process each folder to save its results
-	for (auto folder : folders) // O(m)
+    int j = 0;
+    for (auto folder : folders) // O(m)
     {
+        
         vector<int> chosenFilesIndexes; // O(1)
 
         // Collect the indexes of files in this folder
@@ -272,8 +289,10 @@ void worstFitDecreasingPQCaller(int folderCapacity, vector<pair<string, int>> fi
         // Copy the files to the folder and save metadata
 		processFiles(folder.files, folderCount, chosenFilesIndexes, folderName, testNo, false); // O(1)
 		folderCount++; // O(1)
+        displayProgressBar(j + 1, folders.size()); // Update progress bar
+        j++;
     }
-	cout << "folder count: " << folderCount - 1 << endl; // O(1)    
+    cout << "\nfolder count: " << folderCount - 1 << endl; //O(1)  
 }
 
 /* Complexity Analysis:
@@ -294,7 +313,7 @@ void worstFitPQCaller(int folderCapacity, vector<pair<string, int>> files, strin
     // Apply the Worst-Fit algorithm
 	vector<Folder> folders = worstFitPQ(files, folderCapacity); // O(n log m)
     int folderCount = 1; // To number folders sequentially
-
+    int j = 0;
     // Process each folder to save its results
 	for (auto folder : folders) // O(m)
     {
@@ -309,8 +328,10 @@ void worstFitPQCaller(int folderCapacity, vector<pair<string, int>> files, strin
         // Copy the files to the folder and save metadata
 		processFiles(folder.files, folderCount, chosenFilesIndexes, folderName, testNo, false); // O(1)
 		folderCount++; // O(1)
+        displayProgressBar(j + 1, folders.size()); // Update progress bar
+		j++;
     }
-	cout << "folder count: " << folderCount - 1 << endl; // O(1)
+    cout << "\nfolder count: " << folderCount - 1 << endl; //O(1)
 }
 
 /* Complexity Analysis:
@@ -368,8 +389,9 @@ void FirstFitDecreasing(int folderCapacity, vector<pair<string, int>> files, str
 	for (folderIndex = 0; folderIndex < folderFileIndexes.size(); ++folderIndex) { //O(m)
 		const auto& fileIndexes = folderFileIndexes[folderIndex]; //O(1)
 		processFiles(files, folderIndex + 1, const_cast<vector<int>&>(fileIndexes), folderName, testNo, false); //O(1)
+        displayProgressBar(folderIndex + 1, folderFileIndexes.size()); // Update progress bar
     }
-	cout << "folder count: " << folderIndex << endl; //O(1)
+    cout << "\nfolder count: " << folderIndex << endl; //O(1)
 }
 
 
@@ -418,6 +440,9 @@ void folderFilling(int folderCapacity, vector<pair<string, int>> files, string t
 
     int folderCount = 1;   //θ(1)
 
+    int totalFiles = files.size(); // Total number of files
+    int processedFiles = 0; // Count of files processed
+
     //2D Dynamic Array for saving DP results
     vector<vector<int>> dpMemory(files.size() + 1, vector<int>(folderCapacity + 1, 0));  //θ(1)
 
@@ -435,6 +460,7 @@ void folderFilling(int folderCapacity, vector<pair<string, int>> files, string t
         int maxDuration = folderFillingAlgorithm(folderCapacity, numberOfFiles, files, dpMemory); //θ(n * m)
 
 
+
         // backtracking phase
         vector<int> chosenFilesIndexes;
         int remainingCapacity = folderCapacity;  //θ(1)
@@ -445,7 +471,10 @@ void folderFilling(int folderCapacity, vector<pair<string, int>> files, string t
             {
                 chosenFilesIndexes.push_back(i - 1); // file index is 0 based  //O(1)
                 remainingCapacity -= files[i - 1].second;    //θ(1)
+                processedFiles++; // Increment the count of processed files
+
             }
+            
         }
 
         auto endTime = chrono::high_resolution_clock::now();
@@ -454,9 +483,10 @@ void folderFilling(int folderCapacity, vector<pair<string, int>> files, string t
 
         //copy chosen files to the current folder and remove them to continue filling other folders
 		processFiles(files, folderCount, chosenFilesIndexes, folderName, testNo, true);
-        folderCount++; //θ(1)
+        int progress = (processedFiles * 100) / totalFiles;  // Calculate progress
+        displayProgressBar(progress, 100);         folderCount++; //θ(1)
     }
-    cout << "folder count: " << folderCount-1 << "\n" << endl;
+    cout << "\nfolder count: " << folderCount - 1 << endl; //O(1)
 
     cout << "Total execution time of folderFillingAlgorithm across all iterations: "
         << totalTime << " nanoseconds" << endl;
