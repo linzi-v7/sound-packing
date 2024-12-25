@@ -227,7 +227,7 @@ vector<Folder> worstFitPQ(vector<pair<string, int>> files, int capacity) // O(n 
         int duration = file.second; // O(1)
 
         // Check if the largest folder in the queue can fit the file
-        if (!folderPriorityQueue.empty() && folderPriorityQueue.top().remainingCapacity >= duration) // O(1)
+        if (!folderPriorityQueue.empty() && folderPriorityQueue.top().remainingCapacity >= duration)//O(log m)
         {
             // Update the top folder and re-insert into the queue
             Folder topFolder = folderPriorityQueue.top(); // O(1)
@@ -440,6 +440,9 @@ void folderFilling(int folderCapacity, vector<pair<string, int>> files, string t
 
     int folderCount = 1;   //θ(1)
 
+    int totalFiles = files.size(); // Total number of files
+    int processedFiles = 0; // Count of files processed
+
     //2D Dynamic Array for saving DP results
     vector<vector<int>> dpMemory(files.size() + 1, vector<int>(folderCapacity + 1, 0));  //θ(1)
 
@@ -457,6 +460,7 @@ void folderFilling(int folderCapacity, vector<pair<string, int>> files, string t
         int maxDuration = folderFillingAlgorithm(folderCapacity, numberOfFiles, files, dpMemory); //θ(n * m)
 
 
+
         // backtracking phase
         vector<int> chosenFilesIndexes;
         int remainingCapacity = folderCapacity;  //θ(1)
@@ -467,6 +471,8 @@ void folderFilling(int folderCapacity, vector<pair<string, int>> files, string t
             {
                 chosenFilesIndexes.push_back(i - 1); // file index is 0 based  //O(1)
                 remainingCapacity -= files[i - 1].second;    //θ(1)
+                processedFiles++; // Increment the count of processed files
+
             }
             
         }
@@ -477,8 +483,8 @@ void folderFilling(int folderCapacity, vector<pair<string, int>> files, string t
 
         //copy chosen files to the current folder and remove them to continue filling other folders
 		processFiles(files, folderCount, chosenFilesIndexes, folderName, testNo, true);
-        //displayProgressBar(folderCount-1, 100); // Update progress bar works for sample 4 only needs a fixed folder count
-        folderCount++; //θ(1)
+        int progress = (processedFiles * 100) / totalFiles;  // Calculate progress
+        displayProgressBar(progress, 100);         folderCount++; //θ(1)
     }
     cout << "\nfolder count: " << folderCount - 1 << endl; //O(1)
 
