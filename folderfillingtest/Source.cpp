@@ -212,7 +212,7 @@ vector<Folder> worstFitPQ(vector<pair<string, int>> files, int capacity) // O(n 
         int duration = file.second; // O(1)
 
         // Check if the largest folder in the queue can fit the file
-        if (!folderPriorityQueue.empty() && folderPriorityQueue.top().remainingCapacity >= duration) // O(1)
+        if (!folderPriorityQueue.empty() && folderPriorityQueue.top().remainingCapacity >= duration) // O(log m)
         {
             // Update the top folder and re-insert into the queue
             Folder topFolder = folderPriorityQueue.top(); // O(1)
