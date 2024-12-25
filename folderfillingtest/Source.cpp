@@ -399,14 +399,19 @@ void folderFilling(int folderCapacity, vector<pair<string, int>> files, string t
     //2D Dynamic Array for saving DP results
     vector<vector<int>> dpMemory(files.size() + 1, vector<int>(folderCapacity + 1, 0));  //θ(1)
 
+    long long totalTime = 0;
+
     //worst case scenario: each file is put on a folder by itself, running the folderFillingAlgorithm n times.
     while (!files.empty()) // O(n*n*m) = O(n^2 * m) where n is number of files and m is desired capacity
     {
 
         int numberOfFiles = files.size();  //θ(1)
 
+        auto startTime = std::chrono::high_resolution_clock::now();
+
         // get max duration for the current folder
         int maxDuration = folderFillingAlgorithm(folderCapacity, numberOfFiles, files, dpMemory); //θ(n * m)
+
 
         // backtracking phase
         vector<int> chosenFilesIndexes;
@@ -421,11 +426,21 @@ void folderFilling(int folderCapacity, vector<pair<string, int>> files, string t
             }
         }
 
+        auto endTime = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime);
+        totalTime += duration.count();
 
         //copy chosen files to the current folder and remove them to continue filling other folders
         processFiles(files, folderCount, chosenFilesIndexes, folderName, testNo, true);
         folderCount++; //θ(1)
     }
+
+    cout << "Total execution time of folderFillingAlgorithm across all iterations: "
+        << totalTime << " nanoseconds" << std::endl;
+    cout << "Total execution time in milliseconds: "
+        << totalTime / 1e6 << " ms" << std::endl;
+    cout << "Total execution time in seconds: "
+        << totalTime / 1e9 << " s" << std::endl;
 }
 
 
@@ -456,7 +471,7 @@ int main()
     //if output file already exist, remove it to start on a fresh page
     if (fs::exists("../Sample Tests/Sample " + testNo + "/OUTPUT"))
     {
-        fs::remove_all("../Sample Tests/sample " + testNo + "/OUTPUT");
+        fs::remove_all("../Sample Tests/Sample " + testNo + "/OUTPUT");
     }
 
     int numberOfFiles;
