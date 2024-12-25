@@ -1,10 +1,16 @@
 ﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(531,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (folderfillingtest.vcxproj).  This can lead to incorrect clean and rebuild behavior.
   Source.cpp
-C:\Users\omarw\source\repos\sound-packing\folderfillingtest\Source.cpp(149,27): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\omarw\source\repos\sound-packing\folderfillingtest\Source.cpp(231,41): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\omarw\source\repos\sound-packing\folderfillingtest\Source.cpp(399,42): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
-C:\Users\omarw\source\repos\sound-packing\folderfillingtest\Source.cpp(399,42): warning C4267:         with
-C:\Users\omarw\source\repos\sound-packing\folderfillingtest\Source.cpp(399,42): warning C4267:         [
-C:\Users\omarw\source\repos\sound-packing\folderfillingtest\Source.cpp(399,42): warning C4267:             _Ty=int
-C:\Users\omarw\source\repos\sound-packing\folderfillingtest\Source.cpp(399,42): warning C4267:         ]
-  folderfillingtest.vcxproj -> C:\Users\omarw\Source\Repos\sound-packing\x64\Debug\Sound Packing.exe
+C:\Users\dadad\Documents\GitHub\sound-packing\folderfillingtest\Source.cpp(165,33): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
+C:\Users\dadad\Documents\GitHub\sound-packing\folderfillingtest\Source.cpp(165,33): warning C4267:         with
+C:\Users\dadad\Documents\GitHub\sound-packing\folderfillingtest\Source.cpp(165,33): warning C4267:         [
+C:\Users\dadad\Documents\GitHub\sound-packing\folderfillingtest\Source.cpp(165,33): warning C4267:             _Ty=int
+C:\Users\dadad\Documents\GitHub\sound-packing\folderfillingtest\Source.cpp(165,33): warning C4267:         ]
+C:\Users\dadad\Documents\GitHub\sound-packing\folderfillingtest\Source.cpp(189,33): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
+C:\Users\dadad\Documents\GitHub\sound-packing\folderfillingtest\Source.cpp(189,33): warning C4267:         with
+C:\Users\dadad\Documents\GitHub\sound-packing\folderfillingtest\Source.cpp(189,33): warning C4267:         [
+C:\Users\dadad\Documents\GitHub\sound-packing\folderfillingtest\Source.cpp(189,33): warning C4267:             _Ty=int
+C:\Users\dadad\Documents\GitHub\sound-packing\folderfillingtest\Source.cpp(189,33): warning C4267:         ]
+C:\Users\dadad\Documents\GitHub\sound-packing\folderfillingtest\Source.cpp(430,27): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/PROFILE' specification
+Source.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:REF' specification
+  folderfillingtest.vcxproj -> C:\Users\dadad\Documents\GitHub\sound-packing\x64\Debug\Sound Packing.exe
