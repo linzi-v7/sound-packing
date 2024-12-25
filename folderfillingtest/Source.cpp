@@ -160,7 +160,7 @@ vector<Folder> worstFitLinear(int folderCapacity, vector<pair<string, int>>& fil
 
 // Worst-Fit Decreasing Linear caller function - handles the setup and processing of folders
 // TIME COMPLEXITY O(max(nlogn, n*m)) where n is the number of files and m is the number of folders
-void WFDLinearCaller(int folderCapacity, vector<pair<string, int>> files, string testNo) { //O(n*m)
+void WFDLinearCaller(int folderCapacity, vector<pair<string, int>> files, string testNo) { //O(max(nlogn, n*m))
 	string folderName = "[2.1] WorstFit Decreasing Linear"; //O(1)
 	filesystem::create_directory("../Sample Tests/Sample " + testNo + "/OUTPUT/" + folderName); //O(1)
 
@@ -182,7 +182,7 @@ void WFDLinearCaller(int folderCapacity, vector<pair<string, int>> files, string
 		processFiles(folders[i].files, folderCount++, chosenFilesIndexes, folderName, testNo, false); //O(1)
         displayProgressBar(i + 1, folders.size()); // Update progress bar
     }
-	cout << "\nfolder count: " << folderCount - 1 << endl;
+	cout << "\nFolder Count: " << folderCount - 1 << endl;
 }
 
 //the caller function for Worst-Fit Linear algorithm
@@ -206,7 +206,7 @@ void worstFitLinearCaller(int folderCapacity, vector<pair<string, int>> files, s
 		processFiles(folders[i].files, folderCount++, chosenFilesIndexes, folderName, testNo, false); //O(1)
         displayProgressBar(i + 1, folders.size()); // Update progress bar
     }
-    cout << "\nfolder count: " << folderCount - 1 << endl; //O(1)
+    cout << "\nFolder Count: " << folderCount - 1 << endl; //O(1)
 }
 
 
@@ -292,7 +292,7 @@ void worstFitDecreasingPQCaller(int folderCapacity, vector<pair<string, int>> fi
         displayProgressBar(j + 1, folders.size()); // Update progress bar
         j++;
     }
-    cout << "\nfolder count: " << folderCount - 1 << endl; //O(1)  
+    cout << "\nFolder Count: " << folderCount - 1 << endl; //O(1)  
 }
 
 /* Complexity Analysis:
@@ -331,7 +331,7 @@ void worstFitPQCaller(int folderCapacity, vector<pair<string, int>> files, strin
         displayProgressBar(j + 1, folders.size()); // Update progress bar
 		j++;
     }
-    cout << "\nfolder count: " << folderCount - 1 << endl; //O(1)
+    cout << "\nFolder Count: " << folderCount - 1 << endl; //O(1)
 }
 
 /* Complexity Analysis:
@@ -391,7 +391,7 @@ void FirstFitDecreasing(int folderCapacity, vector<pair<string, int>> files, str
 		processFiles(files, folderIndex + 1, const_cast<vector<int>&>(fileIndexes), folderName, testNo, false); //O(1)
         displayProgressBar(folderIndex + 1, folderFileIndexes.size()); // Update progress bar
     }
-    cout << "\nfolder count: " << folderIndex << endl; //O(1)
+    cout << "\nFolder Count: " << folderIndex << endl; //O(1)
 }
 
 
@@ -486,7 +486,7 @@ void folderFilling(int folderCapacity, vector<pair<string, int>> files, string t
         int progress = (processedFiles * 100) / totalFiles;  // Calculate progress
         displayProgressBar(progress, 100);         folderCount++; //θ(1)
     }
-    cout << "\nfolder count: " << folderCount - 1 << endl; //O(1)
+    cout << "\nFolder Count: " << folderCount - 1 << endl; //O(1)
 
     cout << "Total execution time of folderFillingAlgorithm across all iterations: "
         << totalTime << " nanoseconds" << endl;
